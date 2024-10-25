@@ -2,7 +2,6 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import numpy as np
 
 # Set up the figure, the axis, and the plot element we want to animate
 fig, ax = plt.subplots()
