@@ -71,6 +71,10 @@ def test_circle(x_0, y_0, r, pts_density):
     return x_0 + r * np.cos(theta), y_0 + r * np.sin(theta)
 
 
-x_values, y_values = test_circle(5, 3, 5, 100)
+def test():
+    """
+    Function testing the animation on a circular trajectory
+    """
+    x_values, y_values = test_circle(5, 3, 5, 100)
 
-animate_movement(x_values, y_values)
+    animate_movement(x_values, y_values)
