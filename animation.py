@@ -47,7 +47,7 @@ def animate_movement(x, y, interval=20, save=False, save_path=None):
         return point, line
 
     # Call the animator
-    ani = animation.FuncAnimation(fig, animate, init_func=init, frames=len(x_values), interval=interval, blit=True)
+    ani = animation.FuncAnimation(fig, animate, init_func=init, frames=len(x), interval=interval, blit=True)
 
     if save:
         if not save_path:
