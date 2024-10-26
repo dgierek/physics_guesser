@@ -1,30 +1,40 @@
 import matplotlib
-matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-
-# Set up the figure, the axis, and the plot element we want to animate
-fig, ax = plt.subplots()
-ax.set_xlim(0, 10)
-ax.set_ylim(0, 10)
-point, = ax.plot([], [], 'ro')  # 'ro' stands for red color, 'o' means the point style
+import numpy as np
+matplotlib.use('TkAgg')
 
 
-# Initialization function
-def init():
-    point.set_data([], [])
-    return point,
+def animate_movement(x, y):
+    """
+    A function for displaying an animation of a point given x and y coordinate arrays. Assuming x, y are np.arrays
+    """
 
+    # Checking the data:
+    if not isinstance(x, np.ndarray) or not isinstance(y, np.ndarray):
+        raise TypeError("Both x_values and y_values must be numpy arrays")
+    assert x.shape == y.shape and 'x and y shapes don\'t match!'
 
-# Animation function
-def animate(i):
-    x = [i / 10]  # Moves from 0 to 10
-    y = x  # Line y = x
-    point.set_data(x, y)
-    return point,
+    # Set up the figure, the axis, and the plot element we want to animate
+    fig, ax = plt.subplots()
+    ax.set_xlim(0.9 * x.min(), 1.1 * x.max())
+    ax.set_ylim(0.9 * y.min(), 1.1 * y.max())
+    point, = ax.plot([], [], 'ro')  # 'ro' stands for red color, 'o' means the point style
 
+    def init():
+        """Initialization function"""
 
-# Call the animator
-ani = animation.FuncAnimation(fig, animate, init_func=init, frames=100, interval=20, blit=True)
+        point.set_data([], [])
+        return point,
 
-plt.show()
+    def animate(i):
+        """Animation function"""
+        x_pt = x[i]
+        y_pt = y[i]
+        point.set_data(x_pt, y_pt)
+        return point,
+
+    # Call the animator
+    ani = animation.FuncAnimation(fig, animate, init_func=init, frames=100, interval=20, blit=True)
+
+    plt.show()
