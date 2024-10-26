@@ -55,7 +55,7 @@ def animate_movement(x, y, interval=20, save=False, save_path=None):
         elif isinstance(save_path, str):
             ani.save(save_path + r'\animation.gif', writer='pillow')
         else:
-            print('save_path is not a string')
+            print('Gif wasn\'t saved, because save_path is not a string')
 
     plt.show()
 
@@ -73,4 +73,4 @@ def test_circle(x_0, y_0, r, pts_density):
 
 x_values, y_values = test_circle(5, 3, 5, 100)
 
-animate_movement(x_values, y_values, save=False)
+animate_movement(x_values, y_values)
