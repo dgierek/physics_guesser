@@ -102,7 +102,7 @@ def plot_motion_path(x, y):
 
 
 start_time = time.time()
-x, y = simulate_movement(1000, 2 * np.array([[5, 2]]), box_size=10, dt=0.01)
+x, y = simulate_movement(1000, 4 * np.array([[5, 1]]), box_size=10, dt=0.01)
 end_time = time.time()
 # print(x, y)
 
