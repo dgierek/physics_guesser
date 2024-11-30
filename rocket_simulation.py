@@ -116,8 +116,8 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
 
     # Generating random initial position:
     position = random_initial_pos(box_size=box_size, low_starting_position_limit=0.3,
-                                  high_starting_position_limit=0.6, low_starting_velocity_limit=-1.0,
-                                  high_starting_velocity_limit=1.,
+                                  high_starting_position_limit=0.6, low_starting_velocity_limit=-1,
+                                  high_starting_velocity_limit=1,
                                   time_step=time_step)
 
     for j in range(max_simul_steps - 2):
@@ -139,7 +139,7 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
 
         else:
             position = np.append(position, 2 * position[j + 1] - position[j] +
-                                 harmonic_oscillator(body_position=position[j+1].reshape(1, 2), spring_constant=0.05,
+                                 harmonic_oscillator(body_position=position[j+1].reshape(1, 2), spring_constant=5,
                                                      equilibrium_point=r_0) * time_step ** 2 / body_mass, axis=0)
 
         # If the rocket goes out of the box we finish the simulation:
