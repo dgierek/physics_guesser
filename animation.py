@@ -5,7 +5,7 @@ import numpy as np
 matplotlib.use('TkAgg')
 
 
-def animate_movement(x, y, interval=20, save=False, save_path=None):
+def animate_movement(x, y, box_size, interval=20, save=False, save_path=None):
     """
     A function for displaying an animation of a point given x and y coordinate arrays. Assuming x, y are np.arrays.
     interval variable specifies the delay between each frame in milliseconds. The animation can be saved in form of a
@@ -19,13 +19,9 @@ def animate_movement(x, y, interval=20, save=False, save_path=None):
 
     # Set up the figure, the axis, and the plot element we want to animate
     fig, ax = plt.subplots()
-    x_min, x_max = x.min(), x.max()
-    y_min, y_max = y.min(), y.max()
-    x_range = (x_max - x_min) * 0.1
-    y_range = (y_max - y_min) * 0.1
 
-    ax.set_xlim(x_min - x_range, x_max + x_range)
-    ax.set_ylim(y_min - y_range, y_max + y_range)
+    ax.set_xlim(0, box_size)
+    ax.set_ylim(0, box_size)
 
     ax.set_aspect('equal')
 
