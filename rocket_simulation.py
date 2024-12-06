@@ -157,7 +157,7 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
 
 def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, rocket_img_path=r'images/rocket.png',
                                         background_img_path=r'images/background.png', background_img_size=1000,
-                                        rocket_width=100, rocket_height=50, make_gif=False):
+                                        rocket_width=100, rocket_height=50, make_gif=False, frames_number=30):
     """
     The function creates images of a simulation of a rocket moving in the background according to the x, y arrays
     containing rocket trajectory
@@ -172,6 +172,7 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, roc
     :param int rocket_width: the width of the rocket image in pixels
     :param int rocket_height: the height of the rocket image in pixels
     :param bool make_gif: if True make also a gif out of simulation frames in the location where the jpgs are saved
+    :param int frames_number: number of frames of the simulation
     :return: None
     """
 
@@ -196,14 +197,27 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, roc
         raise TypeError('rocket_height must be a positive integer')
     if not isinstance(img_name, str):
         raise TypeError('img_name must be a string')
+    if not isinstance(make_gif, bool):
+        raise TypeError('make_gif must be a bool')
+    if not isinstance(frames_number, int):
+        raise TypeError('frames_number must be an int')
 
     # loading in the background and the rocket images
     background = Image.open(background_img_path)
     rocket = Image.open(rocket_img_path)
 
+    # taking every step element of x and y vector so to have the wanted number of frames
+    length = len(x)
+    step = int(length / frames_number)
+    x = x[::step]
+    y = y[::step]
+
     # scaling the x and y coordinates so that it fits to the background size:
     x_scaled = x * background_img_size / box_size
     y_scaled = y * background_img_size / box_size
+
+    # Adjust y-coordinates to match the image coordinate system
+    y_scaled = background_img_size - y_scaled
 
     # adjusting the coordinates so that PIL.image.image.paste function will place the rocket at its center:
     x_scaled = x_scaled - rocket_width // 2
@@ -217,7 +231,7 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, roc
     for x_coor, y_coor in zip(x_scaled, y_scaled):
         img = background.copy()
         img.paste(rocket, (int(x_coor), int(y_coor)), rocket)
-        img_filename = save_path + img_name + f'_{i}.png'
+        img_filename = save_path + '\\' + img_name + f'_{i}.png'
         img.save(img_filename)
         i = i + 1
         if make_gif:
@@ -225,7 +239,7 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, roc
 
     # making a gif out of the images:
     if make_gif:
-        with imageio.get_writer(save_path + img_name + '.gif', mode='I', duration=0.5) as writer:
+        with imageio.get_writer(save_path + '\\' + img_name + '.gif', mode='I', duration=0.5) as writer:
             for filename in image_files:
                 image = imageio.imread(filename)
                 writer.append_data(image)
