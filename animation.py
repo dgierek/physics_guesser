@@ -60,6 +60,7 @@ def test_circle(x_0, y_0, r, pts_density):
     """
     The function returns an np.arrays of length equal to pts_density of x and y values that represents points on the
     circle of radius r and centered around point (x_0, y_0).
+
     """
 
     theta = np.linspace(0, 2 * np.pi, pts_density)

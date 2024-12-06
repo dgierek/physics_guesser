@@ -1,5 +1,7 @@
 import numpy as np
-
+from PIL import Image
+import imageio.v2 as imageio
+import os
 
 def gravity(mass, g_vector):
     """
@@ -151,3 +153,79 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
     position = np.array([position[:, 0], position[:, 1]])
 
     return position
+
+
+def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, rocket_img_path=r'images/rocket.png',
+                                        background_img_path=r'images/background.png', background_img_size=1000,
+                                        rocket_width=100, rocket_height=50, make_gif=False):
+    """
+    The function creates images of a simulation of a rocket moving in the background according to the x, y arrays
+    containing rocket trajectory
+    :param np.ndarray x: array of x component of rocket trajectory
+    :param np.ndarray y: array of y component of rocket trajectory
+    :param int box_size: size of the box the rocket is moving in
+    :param str save_path: the path to the folder created images of simulation would be put
+    :param str img_name: the name that will be given to each frame of a picture of a simulation
+    :param str rocket_img_path: the path to the image of the rocket
+    :param str background_img_path: the path to the image of the background
+    :param int background_img_size: the size of the image of the background (assuming it is a square) in pixels
+    :param int rocket_width: the width of the rocket image in pixels
+    :param int rocket_height: the height of the rocket image in pixels
+    :param bool make_gif: if True make also a gif out of simulation frames in the location where the jpgs are saved
+    :return: None
+    """
+
+    # Checking whether the variables given are correct
+    if not isinstance(x, np.ndarray):
+        raise TypeError('x must be a numpy array')
+    if not isinstance(y, np.ndarray):
+        raise TypeError('y must be a numpy array')
+    if not isinstance(box_size, int) or box_size < 0:
+        raise TypeError('box_size must be a positive integer')
+    if not isinstance(save_path, str):
+        raise TypeError('save_path must be a string')
+    if not isinstance(rocket_img_path, str):
+        raise TypeError('rocket_img_path must be a string')
+    if not isinstance(background_img_path, str):
+        raise TypeError('background_img_path must be a string')
+    if not isinstance(background_img_size, int) or background_img_size < 0:
+        raise TypeError('background_img_size must be a positive integer')
+    if not isinstance(rocket_width, int) or rocket_width < 0:
+        raise TypeError('rocket_width must be a positive integer')
+    if not isinstance(rocket_height, int) or rocket_height < 0:
+        raise TypeError('rocket_height must be a positive integer')
+    if not isinstance(img_name, str):
+        raise TypeError('img_name must be a string')
+
+    # loading in the background and the rocket images
+    background = Image.open(background_img_path)
+    rocket = Image.open(rocket_img_path)
+
+    # scaling the x and y coordinates so that it fits to the background size:
+    x_scaled = x * background_img_size / box_size
+    y_scaled = y * background_img_size / box_size
+
+    # adjusting the coordinates so that PIL.image.image.paste function will place the rocket at its center:
+    x_scaled = x_scaled - rocket_width // 2
+    y_scaled = y_scaled - rocket_height // 2
+
+    # list to store image file names
+    image_files = []
+
+    # creating images with the rocket at each point of the trajectory:
+    i = 0
+    for x_coor, y_coor in zip(x_scaled, y_scaled):
+        img = background.copy()
+        img.paste(rocket, (int(x_coor), int(y_coor)), rocket)
+        img_filename = save_path + img_name + f'_{i}.png'
+        img.save(img_filename)
+        i = i + 1
+        if make_gif:
+            image_files.append(img_filename)
+
+    # making a gif out of the images:
+    if make_gif:
+        with imageio.get_writer(save_path + img_name + '.gif', mode='I', duration=0.5) as writer:
+            for filename in image_files:
+                image = imageio.imread(filename)
+                writer.append_data(image)
