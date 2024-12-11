@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from rocket_simulation import generate_trajectories, generate_simulation_from_trajectory
 from animation import animate_movement, test_circle
+from visualization import visualize_trajectory
 
 'Testing the generation of trajectories:'
 # fig, ax = plt.subplots()
@@ -47,20 +48,24 @@ from animation import animate_movement, test_circle
 #     generate_simulation_from_trajectory(x_B, y_B, 10, save_path, 'magnetic_test', make_gif=True)
 
 'Testing generation of simulation from generated_trajectory - gravity'
-x_g, y_g = generate_trajectories('gravity', time_step=0.01, max_simul_steps=3000, box_size=10)
-fig, ax = plt.subplots()
-ax.scatter(x_g, y_g, s=0.5)
+# x_g, y_g = generate_trajectories('gravity', time_step=0.01, max_simul_steps=3000, box_size=10)
+# fig, ax = plt.subplots()
+# ax.scatter(x_g, y_g, s=0.5)
+#
+# ax.set_xlim(0, 10)
+# ax.set_ylim(0, 10)
+# ax.set_aspect('equal')
+# plt.show(block='True')
+#
+# #animate_movement(x_g, y_g, 10, interval=10)
+#
+# save_animation = bool(input('Save animation (1/0)? '))
+# if save_animation:
+#     save_path = r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames'
+#     generate_simulation_from_trajectory(x_g, y_g, 10, save_path, 'gravity_test',
+#                                         'gravity_test_0', make_gif=True)
 
-ax.set_xlim(0, 10)
-ax.set_ylim(0, 10)
-ax.set_aspect('equal')
-plt.show()
-
-animate_movement(x_g, y_g, 10, interval=10)
-
-save_animation = bool(input('Save animation (1/0)? '))
-if save_animation:
-    save_path = r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames'
-    generate_simulation_from_trajectory(x_g, y_g, 10, save_path, 'gravity_test', make_gif=True)
-
-
+'Testing the loading of saved trajectory'
+x_file = r'simulation_frames/gravity_test_0/gravity_test_x_coords.npy'
+y_file = r'simulation_frames/gravity_test_0/gravity_test_y_coords.npy'
+visualize_trajectory(x_file, y_file)

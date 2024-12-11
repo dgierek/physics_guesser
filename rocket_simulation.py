@@ -3,6 +3,7 @@ from PIL import Image
 import imageio.v2 as imageio
 import os
 
+
 def gravity(mass, g_vector):
     """
     The function calculates force of gravity acting on a body of mass = mass with a given acceleration vector g_vector.
@@ -155,7 +156,8 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
     return position
 
 
-def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, rocket_img_path=r'images/rocket.png',
+def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, simulation_directory_name,
+                                        rocket_img_path=r'images/rocket.png',
                                         background_img_path=r'images/background.png', background_img_size=1000,
                                         rocket_width=100, rocket_height=50, make_gif=False, frames_number=30):
     """
@@ -163,9 +165,10 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, roc
     containing rocket trajectory
     :param np.ndarray x: array of x component of rocket trajectory
     :param np.ndarray y: array of y component of rocket trajectory
-    :param int box_size: size of the box the rocket is moving in
-    :param str save_path: the path to the folder created images of simulation would be put
+    :param int box_size: size of the box the rocket is moving in (rocket_simulation.generate_trajectories)
+    :param str save_path: the path to the folder where a folder for the images of the simulation will be created
     :param str img_name: the name that will be given to each frame of a picture of a simulation
+    :param str simulation_directory_name: the name that will be given to the directory in which simulation data will be saved
     :param str rocket_img_path: the path to the image of the rocket
     :param str background_img_path: the path to the image of the background
     :param int background_img_size: the size of the image of the background (assuming it is a square) in pixels
@@ -176,6 +179,9 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, roc
     :return: None
     """
 
+    # Path for the directory in which simulation data will be saved:
+    simul_directory = save_path + '\\' + simulation_directory_name
+
     # Checking whether the variables given are correct
     if not isinstance(x, np.ndarray):
         raise TypeError('x must be a numpy array')
@@ -185,6 +191,10 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, roc
         raise TypeError('box_size must be a positive integer')
     if not isinstance(save_path, str):
         raise TypeError('save_path must be a string')
+    if not isinstance(img_name, str):
+        raise TypeError('img_name must be a string')
+    if not isinstance(simulation_directory_name, str):
+        raise TypeError('simulation_directory_name must be a string')
     if not isinstance(rocket_img_path, str):
         raise TypeError('rocket_img_path must be a string')
     if not isinstance(background_img_path, str):
@@ -201,10 +211,22 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, roc
         raise TypeError('make_gif must be a bool')
     if not isinstance(frames_number, int):
         raise TypeError('frames_number must be an int')
+    if os.path.exists(simul_directory):
+        raise FileExistsError(f'The directory {simulation_directory_name} already exists.')
+
+    # Creating directory in which simulation data will be saved. It will raise error if the directory already
+    # exists. Simulation snapshots will be saved in directory named: 'simulation_snapshots'
+    img_save_path = simul_directory + '\\' + 'simulation_snapshots'
+    os.makedirs(simul_directory, exist_ok=False)
+    os.makedirs(img_save_path, exist_ok=False)
 
     # loading in the background and the rocket images
     background = Image.open(background_img_path)
     rocket = Image.open(rocket_img_path)
+
+    # saving the sliced x and y arrays to retain the original trajectory:
+    np.save(simul_directory + '\\' + img_name + '_x_coords.npy', x)
+    np.save(simul_directory + '\\' + img_name + '_y_coords.npy', y)
 
     # taking every step element of x and y vector so to have the wanted number of frames
     length = len(x)
@@ -231,15 +253,15 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, roc
     for x_coor, y_coor in zip(x_scaled, y_scaled):
         img = background.copy()
         img.paste(rocket, (int(x_coor), int(y_coor)), rocket)
-        img_filename = save_path + '\\' + img_name + f'_{i}.png'
-        img.save(img_filename)
+        img_save_path = simul_directory + '\\' + 'simulation_snapshots' + '\\' + img_name + f'_{i}.png'
+        img.save(img_save_path)
         i = i + 1
         if make_gif:
-            image_files.append(img_filename)
+            image_files.append(img_save_path)
 
     # making a gif out of the images:
     if make_gif:
-        with imageio.get_writer(save_path + '\\' + img_name + '.gif', mode='I', duration=0.5) as writer:
+        with imageio.get_writer(simul_directory + '\\' + img_name + '.gif', mode='I', duration=0.5) as writer:
             for filename in image_files:
                 image = imageio.imread(filename)
                 writer.append_data(image)
