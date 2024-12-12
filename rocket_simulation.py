@@ -2,6 +2,7 @@ import numpy as np
 from PIL import Image
 import imageio.v2 as imageio
 import os
+from json import dump
 
 
 def gravity(mass, g_vector):
@@ -93,13 +94,14 @@ def random_initial_pos(box_size, low_starting_position_limit, high_starting_posi
 
 def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=1000, body_mass=1):
     """
-    The function simulates the movement of a rocket with one of forces (force_type) acting on it.
-    :param force_type: str, one of ('no_force', 'gravity', 'magnetic_field', 'harmonic_oscillator')
-    :param time_step: the time step used in Verlet integration algorithm
-    :param max_simul_steps: maximum number of simulation steps
-    :param box_size: size of the box the rocket is contained
-    :param body_mass: mass of the rocket/body
-    :return: x and y np.arrays for each trajectory (number_of_trajectories in total)
+    The function generates a trajectory of a movement of a rocket with one of forces (force_type) acting on it.
+    :param str force_type: one of ('no_force', 'gravity', 'magnetic_field', 'harmonic_oscillator')
+    :param float time_step: the time step used in Verlet integration algorithm
+    :param int max_simul_steps: maximum number of simulation steps
+    :param int box_size: size of the box the rocket is contained
+    :param float body_mass: mass of the rocket/body
+    :return: x and y np.arrays for each trajectory (number_of_trajectories in total) and dictionary with information
+    about generated trajectory
     """
 
     # Checking whether force type was chosen correctly:
@@ -108,7 +110,8 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
                'variable force_type has to be one of (\'no_force\', \'gravity\', '
                '\'magnetic_field\', \'harmonic_oscillator\')')
 
-    trajectories = np.array([[], []])
+    # Creating dictionary with information on generated trajectory:
+    info_dict = {'force_type': force_type}
 
     # Generating random gravity acceleration, z component of magnetic field and equilibrium point for harmonic
     # oscillator:
@@ -122,6 +125,17 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
                                   high_starting_position_limit=0.6, low_starting_velocity_limit=-1,
                                   high_starting_velocity_limit=1,
                                   time_step=time_step)
+
+    info_dict['initial_position'] = str(position[0])
+
+    if force_type == 'no_force':
+        pass
+    elif force_type == 'gravity':
+        info_dict['g_constant'] = str(g_acc_norm)
+    elif force_type == 'magnetic_field':
+        info_dict['B_field'] = str(B_z)
+    else:
+        info_dict['equilibrium_point'] = str(r_0)
 
     for j in range(max_simul_steps - 2):
 
@@ -153,13 +167,14 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
 
     position = np.array([position[:, 0], position[:, 1]])
 
-    return position
+    return position, info_dict
 
 
 def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, simulation_directory_name,
                                         rocket_img_path=r'images/rocket.png',
                                         background_img_path=r'images/background.png', background_img_size=1000,
-                                        rocket_width=100, rocket_height=50, make_gif=False, frames_number=30):
+                                        rocket_width=100, rocket_height=50, make_gif=False, frames_number=30,
+                                        info_dict=None):
     """
     The function creates images of a simulation of a rocket moving in the background according to the x, y arrays
     containing rocket trajectory
@@ -168,7 +183,8 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, sim
     :param int box_size: size of the box the rocket is moving in (rocket_simulation.generate_trajectories)
     :param str save_path: the path to the folder where a folder for the images of the simulation will be created
     :param str img_name: the name that will be given to each frame of a picture of a simulation
-    :param str simulation_directory_name: the name that will be given to the directory in which simulation data will be saved
+    :param str simulation_directory_name: the name that will be given to the directory in which simulation data will be
+    saved
     :param str rocket_img_path: the path to the image of the rocket
     :param str background_img_path: the path to the image of the background
     :param int background_img_size: the size of the image of the background (assuming it is a square) in pixels
@@ -176,6 +192,8 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, sim
     :param int rocket_height: the height of the rocket image in pixels
     :param bool make_gif: if True make also a gif out of simulation frames in the location where the jpgs are saved
     :param int frames_number: number of frames of the simulation
+    :param None or dict info_dict: the dictionary with information about the trajectory from which simulation will be made.
+    The dictionary will be saved in the simulation directory
     :return: None
     """
 
@@ -219,6 +237,11 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, sim
     img_save_path = simul_directory + '\\' + 'simulation_snapshots'
     os.makedirs(simul_directory, exist_ok=False)
     os.makedirs(img_save_path, exist_ok=False)
+
+    # Saving the info_dict dictionary if provided:
+    if info_dict:
+        with open(simul_directory + '\\' + 'info_dict', 'w') as json_file:
+            dump(info_dict, json_file)
 
     # loading in the background and the rocket images
     background = Image.open(background_img_path)
