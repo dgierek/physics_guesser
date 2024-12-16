@@ -46,7 +46,7 @@ def harmonic_oscillator(body_position, spring_constant, equilibrium_point):
     spring constant = spring_constant and equilibrium point = equilibrium_point (i.e. point in which force acting on a
     body is 0)
     :param body_position: position of the body
-    :param spring_constant: spring constant used to calculate the force
+    :param spring_constant: spring constant used to calculate the force, numpy array of shape (1,2)
     :param equilibrium_point: point in which force acting on a body is 0, np.array of shape (1, 2)
     :return: 2D harmonic oscillator force acting on the body, np.array of shape (1, 2)
     """
@@ -113,12 +113,15 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
     # Creating dictionary with information on generated trajectory:
     info_dict = {'force_type': force_type}
 
-    # Generating random gravity acceleration, z component of magnetic field and equilibrium point for harmonic
-    # oscillator:
+    # Generating random gravity acceleration, z component of magnetic field, equilibrium point and spring constant for
+    # harmonic oscillator:
     g_acc = -1 + 2 * np.random.random(2)
     g_acc_norm = (g_acc * 0.5 / np.linalg.norm(g_acc)).reshape(1, 2)
     B_z = -2 + 4 * np.random.random()
     r_0 = box_size * (0.4 + 0.2 * np.random.random(2))
+    spring_constant_x = 5 * np.random.random()
+    spring_constant_y = np.sqrt(5 ** 2 - spring_constant_x ** 2)
+    spring_constant = np.array([[spring_constant_x, spring_constant_y]])
 
     # Generating random initial position:
     position = random_initial_pos(box_size=box_size, low_starting_position_limit=0.3,
@@ -136,6 +139,7 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
         info_dict['B_field'] = str(B_z)
     else:
         info_dict['equilibrium_point'] = str(r_0)
+        info_dict['spring_constant'] = str(spring_constant)
 
     for j in range(max_simul_steps - 2):
 
@@ -156,8 +160,8 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
 
         else:
             position = np.append(position, 2 * position[j + 1] - position[j] +
-                                 harmonic_oscillator(body_position=position[j+1].reshape(1, 2), spring_constant=5,
-                                                     equilibrium_point=r_0) * time_step ** 2 / body_mass, axis=0)
+                                 harmonic_oscillator(body_position=position[j+1].reshape(1, 2), spring_constant=
+                                 spring_constant, equilibrium_point=r_0) * time_step ** 2 / body_mass, axis=0)
 
         # If the rocket goes out of the box we finish the simulation:
         if position[j + 2][0] < 0 or position[j + 2][0] > box_size:

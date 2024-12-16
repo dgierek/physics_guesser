@@ -50,25 +50,43 @@ from visualization import visualize_trajectory
 #                                         )
 
 'Testing generation of simulation from generated_trajectory - gravity'
-(x_g, y_g), info_dict = generate_trajectories('gravity', time_step=0.01, max_simul_steps=3000, box_size=10)
+# (x_g, y_g), info_dict = generate_trajectories('gravity', time_step=0.01, max_simul_steps=3000, box_size=10)
+# fig, ax = plt.subplots()
+# ax.scatter(x_g, y_g, s=0.5)
+#
+# ax.set_xlim(0, 10)
+# ax.set_ylim(0, 10)
+# ax.set_aspect('equal')
+# plt.show(block='True')
+#
+# animate_movement(x_g, y_g, 10, interval=10)
+#
+# save_animation = bool(int(input('Save animation (1/0)? ')))
+# if save_animation:
+#     save_path = r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames'
+#     generate_simulation_from_trajectory(x_g, y_g, 10, save_path, 'gravity_test',
+#                                         'gravity_test_0', make_gif=True, info_dict=info_dict)
+
+'Testing the loading of saved trajectory'
+# x_file = r'simulation_frames/gravity_test_0/gravity_test_x_coords.npy'
+# y_file = r'simulation_frames/gravity_test_0/gravity_test_y_coords.npy'
+# visualize_trajectory(x_file, y_file)
+
+'Testing generation of simulation from generated_trajectory - harmonic_oscillator'
+(x_h, y_h), info_dict = generate_trajectories('harmonic_oscillator', time_step=0.01, max_simul_steps=3000,
+                                              box_size=10)
 fig, ax = plt.subplots()
-ax.scatter(x_g, y_g, s=0.5)
+ax.scatter(x_h, y_h, s=0.5)
 
 ax.set_xlim(0, 10)
 ax.set_ylim(0, 10)
 ax.set_aspect('equal')
 plt.show(block='True')
 
-animate_movement(x_g, y_g, 10, interval=10)
+animate_movement(x_h, y_h, 10, interval=10)
 
 save_animation = bool(int(input('Save animation (1/0)? ')))
 if save_animation:
     save_path = r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames'
-    generate_simulation_from_trajectory(x_g, y_g, 10, save_path, 'gravity_test',
-                                        'gravity_test_0', make_gif=True, info_dict=info_dict
-                                        )
-
-'Testing the loading of saved trajectory'
-# x_file = r'simulation_frames/gravity_test_0/gravity_test_x_coords.npy'
-# y_file = r'simulation_frames/gravity_test_0/gravity_test_y_coords.npy'
-# visualize_trajectory(x_file, y_file)
+    generate_simulation_from_trajectory(x_h, y_h, 10, save_path, 'harmonic_test',
+                                        'harmonic_test_0', make_gif=True, info_dict=info_dict)
