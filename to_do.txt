@@ -1,4 +1,4 @@
 -przetestować harmonic_oscillator
--ogarnąć draft dekodera
+-ogarnąć draft endekodera
 -ogarnąć te wykresy energii
 -dodać odbijanie od ścianek dla no_force i przetestować no_force
