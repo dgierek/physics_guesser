@@ -85,7 +85,7 @@ plt.show(block='True')
 
 animate_movement(x_h, y_h, 10, interval=10)
 
-save_animation = bool(int(input('Save animation (1/0)? ')))
+save_animation = bool(int(input('Save animation (1/0)?')))
 if save_animation:
     save_path = r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames'
     generate_simulation_from_trajectory(x_h, y_h, 10, save_path, 'harmonic_test',
