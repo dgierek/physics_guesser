@@ -1,0 +1,1 @@
+{"force_type": "no_force", "initial_position": "[3.98116644 4.68707692]"}
