@@ -1,2 +1,4 @@
 -ogarnąć te wykresy energii (dla magnetic_field grzeje się, dla 2D harmonicznego - oscylacje rzędu 1e-3,
 dla grawitacji też się grzeje)
+-energia potencjalna dla grawitacji jest skopona
+-CZY W OGÓLE TE SYMULACJE SĄ MI POTRZEBNE - CZY NIE WYSTARCZY PO PROSTU ROZWIĄZAŃ ANALITYCZNYCH NA TO? XD
