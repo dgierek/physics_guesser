@@ -50,8 +50,8 @@ class ImageDataset(Dataset):
 #     transforms.Resize((64, 64)), # downsampling the resolution of the images
 #     transforms.ToTensor()
 # ])
-# dataset = ImageDataset(directory=r'simulation_frames/magnetic_field_test_0/simulation_snapshots', transform=transform)
-# dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
+# dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
+# dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 #
 # print('Length of dataset:', dataset.__len__())
 # single_batch = next(iter(dataloader))
