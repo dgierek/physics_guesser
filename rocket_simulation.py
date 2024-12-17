@@ -55,7 +55,7 @@ def harmonic_oscillator(body_position, spring_constant, equilibrium_point):
 
 
 def random_initial_pos(box_size, low_starting_position_limit, high_starting_position_limit, low_starting_velocity_limit,
-                       high_starting_velocity_limit, time_step):
+                       high_starting_velocity_limit, time_step=0.01):
     """
     The function generates two first initial positions of a body (necessity for Verlet integration algorithm)
     :param box_size: size of the box the body is moving in
@@ -92,7 +92,7 @@ def random_initial_pos(box_size, low_starting_position_limit, high_starting_posi
     return position
 
 
-def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=1000, body_mass=1):
+def generate_trajectories(force_type, time_step=0.01, max_simul_steps=30, box_size=1000, body_mass=1):
     """
     The function generates a trajectory of a movement of a rocket with one of forces (force_type) acting on it.
     :param str force_type: one of ('no_force', 'gravity', 'magnetic_field', 'harmonic_oscillator')
@@ -119,8 +119,8 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
     g_acc_norm = (g_acc * 0.5 / np.linalg.norm(g_acc)).reshape(1, 2)
     B_z = -2 + 4 * np.random.random()
     r_0 = box_size * (0.4 + 0.2 * np.random.random(2))
-    spring_constant_x = 5 * np.random.random()
-    spring_constant_y = np.sqrt(5 ** 2 - spring_constant_x ** 2)
+    spring_constant_x = 0.5 * np.random.random()
+    spring_constant_y = np.sqrt(0.5 ** 2 - spring_constant_x ** 2)
     spring_constant = np.array([[spring_constant_x, spring_constant_y]])
 
     # Generating random initial position:
@@ -146,6 +146,14 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
         # Choosing the proper integration force:
         if force_type == 'no_force':
             position = np.append(position, (2 * position[j + 1] - position[j]).reshape(1, 2), axis=0)
+            # Check if the rocket hit the wall and make it bounce of it if it did:
+            for i in range(2):
+                if position[j + 2][i] < 0 or position[j + 2][i] > box_size:
+                    # calculating velocity in case of a collision
+                    velocity = (position[j + 1] - position[j]) / time_step
+                    velocity[i] = - velocity[i]
+                    # adjusting the position after the collision
+                    position[j + 2][i] = position[j + 1][i] + velocity[i] * time_step
 
         elif force_type == 'gravity':
             position = np.append(position, 2 * position[j + 1] - position[j] +
@@ -153,7 +161,7 @@ def generate_trajectories(force_type, time_step, max_simul_steps=30, box_size=10
 
         elif force_type == 'magnetic_field':
             # Calculating instantaneous velocity
-            velocity = ((position[j + 1] - position[j]) / (2 * time_step)).reshape(1, 2)
+            velocity = ((position[j + 1] - position[j]) / time_step).reshape(1, 2)
             position = np.append(position, 2 * position[j + 1] - position[j] +
                                  magnetic_field(body_charge=1, body_velocity=velocity, magnetic_field_z=B_z) *
                                  time_step ** 2 / body_mass, axis=0)
@@ -244,7 +252,7 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, sim
 
     # Saving the info_dict dictionary if provided:
     if info_dict:
-        with open(simul_directory + '\\' + 'info_dict', 'w') as json_file:
+        with open(simul_directory + '\\' + 'info_dict.txt', 'w') as json_file:
             dump(info_dict, json_file)
 
     # loading in the background and the rocket images
