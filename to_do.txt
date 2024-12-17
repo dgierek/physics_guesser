@@ -1,4 +1,2 @@
--przetestować harmonic_oscillator
--ogarnąć draft endekodera
--ogarnąć te wykresy energii
--dodać odbijanie od ścianek dla no_force i przetestować no_force
+-ogarnąć te wykresy energii (dla magnetic_field grzeje się, dla 2D harmonicznego - oscylacje rzędu 1e-3,
+dla grawitacji też się grzeje)
