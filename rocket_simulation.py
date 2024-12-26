@@ -92,6 +92,18 @@ def random_initial_pos(box_size, low_starting_position_limit, high_starting_posi
     return position
 
 
+def calculate_velocity(pos, prev_prev_pos, time_step):
+    """
+    The function calculates velocity in Verlet integration
+    :param pos: current position of the rocket
+    :param prev_prev_pos: the second to last position of the rocket
+    :param time_step: time step used in Verlet integration
+    :return: velocity of the rocket
+    """
+
+    return (pos - prev_prev_pos) / (2 * time_step)
+
+
 def generate_trajectories(force_type, time_step=0.01, max_simul_steps=30, box_size=1000, body_mass=1):
     """
     The function generates a trajectory of a movement of a rocket with one of forces (force_type) acting on it.
@@ -111,7 +123,7 @@ def generate_trajectories(force_type, time_step=0.01, max_simul_steps=30, box_si
                '\'magnetic_field\', \'harmonic_oscillator\')')
 
     # Creating dictionary with information on generated trajectory:
-    info_dict = {'force_type': force_type}
+    info_dict = {'force_type': force_type, 'time_step': time_step}
 
     # Generating random gravity acceleration, z component of magnetic field, equilibrium point and spring constant for
     # harmonic oscillator:
@@ -150,10 +162,9 @@ def generate_trajectories(force_type, time_step=0.01, max_simul_steps=30, box_si
             for i in range(2):
                 if position[j + 2][i] < 0 or position[j + 2][i] > box_size:
                     # calculating velocity in case of a collision
-                    velocity = (position[j + 1] - position[j]) / time_step
-                    velocity[i] = - velocity[i]
+                    velocity = calculate_velocity(position[j+1], position[j-1], time_step)
                     # adjusting the position after the collision
-                    position[j + 2][i] = position[j + 1][i] + velocity[i] * time_step
+                    position[j + 2][i] = position[j+1][i] - velocity[i] * time_step
 
         elif force_type == 'gravity':
             position = np.append(position, 2 * position[j + 1] - position[j] +
@@ -161,7 +172,7 @@ def generate_trajectories(force_type, time_step=0.01, max_simul_steps=30, box_si
 
         elif force_type == 'magnetic_field':
             # Calculating instantaneous velocity
-            velocity = ((position[j + 1] - position[j]) / time_step).reshape(1, 2)
+            velocity = calculate_velocity(position[j+1], position[j-1], time_step).reshape(1, 2)
             position = np.append(position, 2 * position[j + 1] - position[j] +
                                  magnetic_field(body_charge=1, body_velocity=velocity, magnetic_field_z=B_z) *
                                  time_step ** 2 / body_mass, axis=0)
@@ -175,6 +186,161 @@ def generate_trajectories(force_type, time_step=0.01, max_simul_steps=30, box_si
         if position[j + 2][0] < 0 or position[j + 2][0] > box_size:
             break
         if position[j + 2][1] < 0 or position[j + 2][1] > box_size:
+            break
+
+    position = np.array([position[:, 0], position[:, 1]])
+
+    return position, info_dict
+
+
+def random_initial_pos_analytically(box_size, low_starting_position_limit, high_starting_position_limit,
+                                    low_starting_velocity_limit, high_starting_velocity_limit):
+    """
+    The function generates two first initial positions of a body (necessity for Verlet integration algorithm)
+    :param box_size: size of the box the body is moving in
+    :param low_starting_position_limit: low limit of initial position[1], int or float in range(0,1) and smaller than
+    high_starting_position_limit
+    :param high_starting_position_limit: high limit of initial position[1], int or float in range(0,1) and larger than
+    high_starting_position_limit
+    :param low_starting_velocity_limit: low limit for initial velocity, int or float smaller than
+    high_starting_velocity_limit
+    :param high_starting_velocity_limit: high limit for initial velocity, int or float larger than
+    low_starting_velocity_limit
+    :return: position, velocity where position and velocity are np.arrays of shape (1,2)
+    """
+
+    # Checking whether the variables given are correct
+    if not isinstance(low_starting_position_limit, (int, float)):
+        raise TypeError("low_starting_position_limit must be an int or float")
+    if not isinstance(high_starting_position_limit, (int, float)):
+        raise TypeError("high_starting_position_limit must be an int or float")
+    if not isinstance(low_starting_velocity_limit, (int, float)):
+        raise TypeError("low_starting_velocity_limit must be an int or float")
+    if not isinstance(high_starting_velocity_limit, (int, float)):
+        raise TypeError("high_starting_velocity_limit must be an int or float")
+    assert low_starting_position_limit < high_starting_position_limit and ('high_starting_position_limit must be'
+                                                                           'greater than low_starting_position_limit')
+    assert low_starting_velocity_limit < high_starting_velocity_limit and ('high_starting_velocity_limit must be'
+                                                                           'greater than low_starting_velocity_limit')
+
+    velocity_0 = (low_starting_velocity_limit + (high_starting_velocity_limit - low_starting_velocity_limit) *
+                  np.random.random(2)).reshape((1,2))
+
+    position_0 = box_size * (low_starting_position_limit + (high_starting_position_limit - low_starting_position_limit)
+                             * np.random.random(2)).reshape((1,2))
+
+    return position_0, velocity_0
+
+
+def generate_trajectories_analytically(force_type, time_step=0.01, max_simul_steps=30, box_size=1000, body_mass=1,
+                                       body_charge=1):
+    """
+    The function generates a trajectory of a movement of a rocket with one of forces (force_type) acting on it.
+    :param str force_type: one of ('no_force', 'gravity', 'magnetic_field', 'harmonic_oscillator')
+    :param float time_step: the time step used in Verlet integration algorithm
+    :param int max_simul_steps: maximum number of simulation steps
+    :param int box_size: size of the box the rocket is contained
+    :param float body_mass: mass of the rocket/body
+    :param int body_charge: electric charge of the body (necessary for force_type='magnetic_field')
+    :return: x and y np.arrays for each trajectory (number_of_trajectories in total) and dictionary with information
+    about generated trajectory
+    """
+
+    # Checking whether force type was chosen correctly:
+    assert (force_type == 'no_force' or force_type == 'gravity' or force_type == 'magnetic_field' or force_type ==
+            'harmonic_oscillator') and ('variable force_type has to be one of (\'no_force\', \'gravity\', '
+                                        '\'magnetic_field\', \'harmonic_oscillator\')')
+
+    # Creating dictionary with information on generated trajectory:
+    info_dict = {'force_type': force_type, 'time_step': time_step}
+
+    # Generating random gravity acceleration, z component of magnetic field, equilibrium point and spring constant for
+    # harmonic oscillator:
+    g_acc = -1 + 2 * np.random.random(2)
+    g_acc_norm = (g_acc * 0.5 / np.linalg.norm(g_acc)).reshape(1, 2)
+    B_z = -2 + 4 * np.random.random()
+    r_0 = box_size * (0.4 + 0.2 * np.random.random(2))
+    spring_constant_x = 0.5 * np.random.random()
+    spring_constant_y = np.sqrt(0.5 ** 2 - spring_constant_x ** 2)
+    spring_constant = np.array([[spring_constant_x, spring_constant_y]])
+
+    # Generating random initial position and velocity:
+    position_0, velocity_0 = (
+        random_initial_pos_analytically(box_size=box_size, low_starting_position_limit=0.3,
+                                        high_starting_position_limit=0.6, low_starting_velocity_limit=-1,
+                                        high_starting_velocity_limit=1))
+
+    info_dict['initial_position'] = str(position_0)
+    info_dict['initial_velocity'] = str(velocity_0)
+
+    # Creating array of time:
+    time = np.arange(start=time_step, stop=max_simul_steps*time_step, step=time_step)
+
+    position = position_0
+
+    if force_type == 'no_force':
+        pass
+    elif force_type == 'gravity':
+        info_dict['g_constant'] = str(g_acc_norm)
+    elif force_type == 'magnetic_field':
+        info_dict['B_field'] = str(B_z)
+    else:
+        info_dict['equilibrium_point'] = str(r_0)
+        info_dict['spring_constant'] = str(spring_constant)
+
+    # Creating aliases for easier implementation of analytical solutions:
+
+    v_0_x = velocity_0[0][0]
+    v_0_y = velocity_0[0][1]
+    x_0 = position_0[0][0]
+    y_0 = position_0[0][1]
+
+    for t in time:
+
+        # Choosing the proper integration force:
+        if force_type == 'no_force':
+            # Implementing analytical solutions:
+            position = np.append(position, (position_0 + velocity_0 * t).reshape(1, 2), axis=0)
+            # Check if the rocket hit the wall and make it bounce of it if it did:
+            for i in range(2):
+                if position[-1][i] < 0 or position[-1][i] > box_size:
+                    # changing signs of appropriate component of velocity in case of the collision
+                    velocity_0[0][i] = - velocity_0[0][i]
+                    # adjusting the position after the collision
+                    position[-1][i] = position[-2][i] + velocity_0[0][i] * time_step
+
+        elif force_type == 'gravity':
+            # Implementing analytical solutions:
+            new_position_x = g_acc_norm[0][0] * t ** 2 / 2 + v_0_x * t + x_0
+            new_position_y = g_acc_norm[0][1] * t ** 2 / 2 + v_0_y * t + y_0
+            new_position = np.array([new_position_x, new_position_y]).reshape((1,2))
+            position = np.append(position, new_position, axis=0)
+
+        elif force_type == 'magnetic_field':
+            # Defining omega constant for a particle in magnetic field
+            omega = body_charge * B_z / body_mass
+
+            # Implementing analytical solutions:
+            new_position_x = x_0 + 1 / omega * (v_0_x * np.sin(omega * t) + v_0_y * (1 - np.cos(omega * t)))
+            new_position_y = y_0 + 1 / omega * (v_0_x * (np.cos(omega * t) - 1) + v_0_y * np.sin(omega * t))
+            new_position = np.array([new_position_x, new_position_y]).reshape((1, 2))
+            position = np.append(position, new_position, axis=0)
+
+        else:
+            # Defining omega constants for particle in harmonic potetntial (x and y direction)
+            omega_x = np.sqrt(spring_constant_x / body_mass)
+            omega_y = np.sqrt(spring_constant_y / body_mass)
+
+            # Implementing analytical solutions:
+            new_position_x = x_0 * np.cos(omega_x * t) + v_0_x / omega_x * np.sin(omega_x * t) + r_0[0]
+            new_position_y = y_0 * np.cos(omega_y * t) + v_0_y / omega_y * np.sin(omega_y * t) + r_0[1]
+            new_position = np.array([new_position_x, new_position_y]).reshape((1, 2))
+            position = np.append(position, new_position, axis=0)
+
+        # If the rocket goes out of the box we finish the simulation:
+        if position[-1][0] < 0 or position[-1][0] > box_size:
+            break
+        if position[-1][1] < 0 or position[-1][1] > box_size:
             break
 
     position = np.array([position[:, 0], position[:, 1]])
