@@ -46,17 +46,17 @@ class ImageDataset(Dataset):
 
 
 'Usage example:'
-# transform = transforms.Compose([
-#     transforms.Resize((64, 64)), # downsampling the resolution of the images
-#     transforms.ToTensor()
-# ])
-# dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
-# dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
-#
-# print('Length of dataset:', dataset.__len__())
-# single_batch = next(iter(dataloader))
-# print('Batch shape:', single_batch.shape)  # should print torch.Size([1, 3, 3, 64, 64])
-#
-# for batch in dataset:
-#     visualise_batch(batch)
+transform = transforms.Compose([
+    transforms.Resize((64, 64)), # downsampling the resolution of the images
+    transforms.ToTensor()
+])
+dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
+dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
+
+print('Length of dataset:', dataset.__len__())
+single_batch = next(iter(dataloader))
+print('Batch shape:', single_batch.shape)  # should print torch.Size([1, 3, 3, 64, 64])
+
+for batch in dataset:
+    visualise_batch(batch)
 
