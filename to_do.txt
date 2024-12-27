@@ -1,2 +1,2 @@
--zrób test generacji (grawitacja ok)
 -Jechać z enkoderem
+-Poprawić ten dataloader (z tym error)
