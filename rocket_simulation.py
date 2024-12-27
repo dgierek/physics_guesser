@@ -224,10 +224,10 @@ def random_initial_pos_analytically(box_size, low_starting_position_limit, high_
                                                                            'greater than low_starting_velocity_limit')
 
     velocity_0 = (low_starting_velocity_limit + (high_starting_velocity_limit - low_starting_velocity_limit) *
-                  np.random.random(2)).reshape((1,2))
+                  np.random.random(2)).reshape((1, 2))
 
     position_0 = box_size * (low_starting_position_limit + (high_starting_position_limit - low_starting_position_limit)
-                             * np.random.random(2)).reshape((1,2))
+                             * np.random.random(2)).reshape((1, 2))
 
     return position_0, velocity_0
 
@@ -254,14 +254,13 @@ def generate_trajectories_analytically(force_type, time_step=0.01, max_simul_ste
     # Creating dictionary with information on generated trajectory:
     info_dict = {'force_type': force_type, 'time_step': time_step}
 
-    # Generating random gravity acceleration, z component of magnetic field, equilibrium point and spring constant for
+    # Generating random gravity acceleration, z component of magnetic field and spring constant for
     # harmonic oscillator:
     g_acc = -1 + 2 * np.random.random(2)
     g_acc_norm = (g_acc * 0.5 / np.linalg.norm(g_acc)).reshape(1, 2)
     B_z = -2 + 4 * np.random.random()
-    r_0 = box_size * (0.4 + 0.2 * np.random.random(2))
-    spring_constant_x = 0.5 * np.random.random()
-    spring_constant_y = np.sqrt(0.5 ** 2 - spring_constant_x ** 2)
+    spring_constant_x = 0.1 * np.random.random()
+    spring_constant_y = 0.1 * np.random.random()
     spring_constant = np.array([[spring_constant_x, spring_constant_y]])
 
     # Generating random initial position and velocity:
@@ -269,6 +268,9 @@ def generate_trajectories_analytically(force_type, time_step=0.01, max_simul_ste
         random_initial_pos_analytically(box_size=box_size, low_starting_position_limit=0.3,
                                         high_starting_position_limit=0.6, low_starting_velocity_limit=-1,
                                         high_starting_velocity_limit=1))
+
+    # Generating random equilibrium point for harmonic oscillator
+    r_0 = box_size * (0.4 + 0.2 * np.random.random(2))
 
     info_dict['initial_position'] = str(position_0)
     info_dict['initial_velocity'] = str(velocity_0)
@@ -300,14 +302,21 @@ def generate_trajectories_analytically(force_type, time_step=0.01, max_simul_ste
         # Choosing the proper integration force:
         if force_type == 'no_force':
             # Implementing analytical solutions:
-            position = np.append(position, (position_0 + velocity_0 * t).reshape(1, 2), axis=0)
+            new_position = (position_0 + velocity_0 * t).reshape(1, 2)
             # Check if the rocket hit the wall and make it bounce of it if it did:
             for i in range(2):
-                if position[-1][i] < 0 or position[-1][i] > box_size:
+                if new_position[0][i] < 0:
                     # changing signs of appropriate component of velocity in case of the collision
                     velocity_0[0][i] = - velocity_0[0][i]
-                    # adjusting the position after the collision
-                    position[-1][i] = position[-2][i] + velocity_0[0][i] * time_step
+                    position_0[0][i] = 0 - velocity_0[0][i] * t
+                elif new_position[0][i] > box_size:
+                    velocity_0[0][i] = - velocity_0[0][i]
+                    position_0[0][i] = box_size - velocity_0[0][i] * t
+
+            # adjusting the position after the collision
+            new_position = (position_0 + velocity_0 * t).reshape(1, 2)
+
+            position = np.append(position, new_position, axis=0)
 
         elif force_type == 'gravity':
             # Implementing analytical solutions:
@@ -327,13 +336,13 @@ def generate_trajectories_analytically(force_type, time_step=0.01, max_simul_ste
             position = np.append(position, new_position, axis=0)
 
         else:
-            # Defining omega constants for particle in harmonic potetntial (x and y direction)
+            # Defining omega constants for particle in harmonic potential (x and y direction)
             omega_x = np.sqrt(spring_constant_x / body_mass)
             omega_y = np.sqrt(spring_constant_y / body_mass)
 
             # Implementing analytical solutions:
-            new_position_x = x_0 * np.cos(omega_x * t) + v_0_x / omega_x * np.sin(omega_x * t) + r_0[0]
-            new_position_y = y_0 * np.cos(omega_y * t) + v_0_y / omega_y * np.sin(omega_y * t) + r_0[1]
+            new_position_x = (x_0 - r_0[0]) * np.cos(omega_x * t) + (v_0_x / omega_x) * np.sin(omega_x * t) + r_0[0]
+            new_position_y = (y_0 - r_0[1]) * np.cos(omega_y * t) + (v_0_y / omega_y) * np.sin(omega_y * t) + r_0[1]
             new_position = np.array([new_position_x, new_position_y]).reshape((1, 2))
             position = np.append(position, new_position, axis=0)
 

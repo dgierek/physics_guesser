@@ -57,7 +57,7 @@ def gravitational_kinetic_energy(g_x, g_y, v_0_x, v_0_y, time, body_mass):
     return (g_dot_g * time ** 2 + 2 * time * g_dot_v_0 + v_0_dot_v_0) * body_mass / 2
 
 
-def harmonic_oscillator_kinetic_energy(x_0, y_0, v_0_x, v_0_y, k_x, k_y, time, body_mass):
+def harmonic_oscillator_kinetic_energy(x_0, y_0, v_0_x, v_0_y, k_x, k_y, r_x, r_y, time, body_mass):
     """
     The function returns analytically calculated kinetic energy of a harmonic oscillator
     :param float x_0: x component of body position at time=0
@@ -66,6 +66,8 @@ def harmonic_oscillator_kinetic_energy(x_0, y_0, v_0_x, v_0_y, k_x, k_y, time, b
     :param float v_0_y: y component of body instantaneous velocity at time=0
     :param float k_x: x component of a spring constant
     :param float k_y: y component of a spring constant
+    :param float r_x: x component of an equilibrium point
+    :param float r_y: y component of an equilibrium point
     :param np.ndarray time: array of time
     :param int body_mass: mass of a harmonic oscillator
     :return: np.ndarray
@@ -74,8 +76,8 @@ def harmonic_oscillator_kinetic_energy(x_0, y_0, v_0_x, v_0_y, k_x, k_y, time, b
     omega_x = np.sqrt(k_x / body_mass)
     omega_y = np.sqrt(k_y / body_mass)
 
-    v_x_dot_v_x = (-x_0 * omega_x * np.sin(omega_x * time) + v_0_x * np.cos(omega_x * time))**2
-    v_y_dot_v_y = (-y_0 * omega_y * np.sin(omega_y * time) + v_0_y * np.cos(omega_y * time))**2
+    v_x_dot_v_x = (-(x_0 - r_x) * omega_x * np.sin(omega_x * time) + v_0_x * np.cos(omega_x * time))**2
+    v_y_dot_v_y = (-(y_0 - r_y) * omega_y * np.sin(omega_y * time) + v_0_y * np.cos(omega_y * time))**2
 
     return body_mass * (v_x_dot_v_x + v_y_dot_v_y) / 2
 
@@ -109,7 +111,7 @@ def total_energy_analytically(info_dict_path, x, y, body_mass=1):
     else:
         k_x, k_y = np.fromstring(info_dict["spring_constant"].strip("[]"), sep=" ")
         r_x, r_y = np.fromstring(info_dict["equilibrium_point"].strip("[]"), sep=" ")
-        return (harmonic_oscillator_kinetic_energy(x_0, y_0, v_0_x, v_0_y, k_x, k_y, time, body_mass),
+        return (harmonic_oscillator_kinetic_energy(x_0, y_0, v_0_x, v_0_y, k_x, k_y, r_x, r_y, time, body_mass),
                 0.5 * (k_x * (x-r_x)**2 + k_y * (y-r_y)**2))
 
 
@@ -153,7 +155,7 @@ def visualize_trajectory(x_coord_path, y_coord_path, info_dict_path, box_size=10
         ax2.scatter(range(len(kinetic_energy)), potential_energy, s=0.5, c='red', label='$E_p$')
     ax2.scatter(range(len(kinetic_energy)), kinetic_energy + potential_energy, s=0.5, c='black', label='$E_t$')
     ax2.set_xlabel('Time step')
-    ax2.set_ylabel('energy')
+    ax2.set_ylabel('Energy')
     ax2.legend()
 
     plt.tight_layout()
@@ -188,9 +190,19 @@ def visualize_trajectory_analytically(x_coord_path, y_coord_path, info_dict_path
     # calculating total energy at each step of the simulation:
     kinetic_energy, potential_energy = total_energy_analytically(info_dict_path, x, y, body_mass=1)
 
+    # getting information from info_dict:
+    with open(info_dict_path, 'r') as json_file:
+        info_dict = json.load(json_file)
+
+    force_type = info_dict['force_type']
+
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
     ax1.scatter(x, y, s=0.5)
+    if force_type == 'harmonic_oscillator':
+        r_x, r_y = np.fromstring(info_dict["equilibrium_point"].strip("[]"), sep=" ")
+        ax1.scatter(r_x, r_y, c='black', label='Equilibrium point')
+        ax1.legend()
 
     ax1.set_xlim(0, box_size)
     ax1.set_ylim(0, box_size)
@@ -201,7 +213,7 @@ def visualize_trajectory_analytically(x_coord_path, y_coord_path, info_dict_path
         ax2.scatter(range(len(kinetic_energy)), potential_energy, s=0.5, c='red', label='$E_p$')
     ax2.scatter(range(len(kinetic_energy)), kinetic_energy + potential_energy, s=0.5, c='black', label='$E_t$')
     ax2.set_xlabel('Time step')
-    ax2.set_ylabel('Total energy')
+    ax2.set_ylabel('Energy')
     ax2.legend()
 
     plt.tight_layout()
