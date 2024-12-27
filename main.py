@@ -91,27 +91,54 @@ import numpy as np
 
 
 'Testing generation of simulation from generated trajectory - no force:'
-(x_f, y_f), info_dict = generate_trajectories_analytically('no_force', time_step=0.01, max_simul_steps=5000,
-                                                           box_size=10)
-fig, ax = plt.subplots()
-ax.scatter(x_f, y_f, s=0.5)
+# (x_f, y_f), info_dict = generate_trajectories_analytically('no_force', time_step=0.01, max_simul_steps=5000,
+#                                                            box_size=10)
+# fig, ax = plt.subplots()
+# ax.scatter(x_f, y_f, s=0.5)
+#
+# print(x_f[-2:], y_f[-2:])
+#
+# ax.set_xlim(0, 10)
+# ax.set_ylim(0, 10)
+# ax.set_aspect('equal')
+# plt.show(block='True')
+#
+# animate_movement(x_f, y_f, 10, interval=1)
+#
+# save_animation = bool(int(input('Save animation (1/0)? ')))
+# if save_animation:
+#     save_path = r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames'
+#     generate_simulation_from_trajectory(x_f, y_f, 10, save_path, 'no_force_test',
+#                                         'no_force_test_0', make_gif=True, info_dict=info_dict)
+#     x_file = r'simulation_frames/no_force_test_0/no_force_test_x_coords.npy'
+#     y_file = r'simulation_frames/no_force_test_0/no_force_test_y_coords.npy'
+#     visualize_trajectory_analytically(x_file, y_file, r'simulation_frames/no_force_test_0/info_dict.txt')
 
-print(x_f[-2:], y_f[-2:])
 
-ax.set_xlim(0, 10)
-ax.set_ylim(0, 10)
-ax.set_aspect('equal')
-plt.show(block='True')
+from torchvision import transforms
+from datasets import ImageDataset
+from torch.utils.data import DataLoader
+from autoencoder import AutoencoderWithEvolution
 
-animate_movement(x_f, y_f, 10, interval=1)
+'''Testing whether shapes of data and network's number of channels is correct:'''
+transform = transforms.Compose([
+    transforms.Resize((64, 64)),  # down sampling the resolution of the images
+    transforms.ToTensor()
+])
+dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
+dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
-save_animation = bool(int(input('Save animation (1/0)? ')))
-if save_animation:
-    save_path = r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames'
-    generate_simulation_from_trajectory(x_f, y_f, 10, save_path, 'no_force_test',
-                                        'no_force_test_0', make_gif=True, info_dict=info_dict)
-    x_file = r'simulation_frames/no_force_test_0/no_force_test_x_coords.npy'
-    y_file = r'simulation_frames/no_force_test_0/no_force_test_y_coords.npy'
-    visualize_trajectory_analytically(x_file, y_file, r'simulation_frames/no_force_test_0/info_dict.txt')
+first_batch = next(iter(dataloader))
+first_picture = first_batch.squeeze(0)[0].unsqueeze(0)
+second_picture = first_batch.squeeze(0)[1].unsqueeze(0)
+print('first_picture.shape:', first_picture.shape)  # should print torch.Size([1, 3, 64, 64])
+print('second_picture.shape:', second_picture.shape)  # should print torch.Size([1, 3, 64, 64])
 
+test_autoencoder = AutoencoderWithEvolution()
+reconstructed_image_0, z_0, _ = test_autoencoder.forward(first_picture, None)
+reconstructed_image_1, z_1, z_2_r = test_autoencoder.forward(second_picture, z_0)
+print('reconstructed_image_0.shape:', reconstructed_image_0.shape)
+print('z_0.shape:', z_0.shape)
+print('z_1.shape:', z_1.shape)
+print('z_2_r.shape:', z_2_r.shape)
 
