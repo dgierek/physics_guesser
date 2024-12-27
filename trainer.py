@@ -1,4 +1,5 @@
 import torch.nn as nn
+from torch import device, cuda
 from torch.optim import Adam
 from autoencoder import AutoencoderWithEvolution
 from datasets import ImageDataset
@@ -6,9 +7,12 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
 
+# Implementing GPU support (if aveilable)
+device = device('cuda' if cuda.is_available() else 'cpu')
+print('Device:', str(device))
 
 # Initialising our autoencoder:
-model = AutoencoderWithEvolution()
+model = AutoencoderWithEvolution().to(device)
 
 # Getting data from dataloader:
 transform = transforms.Compose([
@@ -27,7 +31,7 @@ num_epochs = 1
 for epoch in range(num_epochs):
     loss = 0
     for data in tqdm(dataloader):
-        x_prev, x_curr, x_next = data.squeeze(0)
+        x_prev, x_curr, x_next = data.squeeze(0).to(device)
         x_prev = x_prev.unsqueeze(0)
         x_curr = x_curr.unsqueeze(0)
         x_next = x_next.unsqueeze(0)
