@@ -17,6 +17,10 @@ def natural_sort_key(s):
 
 
 class ImageDataset(Dataset):
+    """
+    The class inherits from torch.utilis.data.Dataset and loads three subsequent snapshots of the simulation from a
+    given directory
+    """
     def __init__(self, directory, transform=None):
         self.directory = directory
         self.image_files = sorted([f for f in os.listdir(directory) if f.endswith('.png')], key=natural_sort_key)
@@ -27,7 +31,10 @@ class ImageDataset(Dataset):
         return max(0, len(self.image_files) - 2)
 
     def __getitem__(self, idx):
-        if idx >= len(self) - 2:  # Ensures the last batches have 3 images. I don't think its correct though
+        if idx >= len(self):  # Ensures the last batches have 3 images. It's necessary as torch.utils.data.DataLoader
+            # can't deal with the indexes properly by itself. I don't understand why it is the case. It looks like it's
+            # really how such exceptions should be treated - accordingly to python documentation:
+            # https://docs.python.org/3/reference/datamodel.html#object.__getitem__
             raise IndexError("Index out of range")
 
         # Load three subsequent images
@@ -46,17 +53,18 @@ class ImageDataset(Dataset):
 
 
 'Usage example:'
-transform = transforms.Compose([
-    transforms.Resize((64, 64)), # downsampling the resolution of the images
-    transforms.ToTensor()
-])
-dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
-dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
-
-print('Length of dataset:', dataset.__len__())
-single_batch = next(iter(dataloader))
-print('Batch shape:', single_batch.shape)  # should print torch.Size([1, 3, 3, 64, 64])
-
-for batch in dataset:
-    visualise_batch(batch)
+# transform = transforms.Compose([
+#     transforms.Resize((64, 64)),  # down sampling the resolution of the images
+#     transforms.ToTensor()
+# ])
+# dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
+# dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
+#
+# print('Length of dataset:', dataset.__len__())
+# print('len(dataset)', len(dataset))
+# single_batch = next(iter(dataloader))
+# print('Batch shape:', single_batch.shape)  # should print torch.Size([1, 3, 3, 64, 64])
+#
+# for batch in dataset:
+#     print(batch.shape)
 
