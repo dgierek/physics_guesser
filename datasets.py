@@ -25,6 +25,7 @@ class ImageDataset(Dataset):
         self.directory = directory
         self.image_files = sorted([f for f in os.listdir(directory) if f.endswith('.png')], key=natural_sort_key)
         self.transform = transform
+        super(ImageDataset, self).__init__()
 
     def __len__(self):
         # Return the number of samples, considering groups of 3 images
@@ -53,18 +54,18 @@ class ImageDataset(Dataset):
 
 
 'Usage example:'
-# transform = transforms.Compose([
-#     transforms.Resize((64, 64)),  # down sampling the resolution of the images
-#     transforms.ToTensor()
-# ])
-# dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
-# dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
-#
-# print('Length of dataset:', dataset.__len__())
-# print('len(dataset)', len(dataset))
-# single_batch = next(iter(dataloader))
-# print('Batch shape:', single_batch.shape)  # should print torch.Size([1, 3, 3, 64, 64])
-#
-# for batch in dataset:
-#     print(batch.shape)
+transform = transforms.Compose([
+    transforms.Resize((64, 64)),  # down sampling the resolution of the images
+    transforms.ToTensor()
+])
+dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
+dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
+
+print('Length of dataset:', dataset.__len__())
+print('len(dataset)', len(dataset))
+single_batch = next(iter(dataloader))
+print('Batch shape:', single_batch.shape)  # should print torch.Size([1, 3, 3, 64, 64])
+
+for batch in dataset:
+    print(batch.shape)
 
