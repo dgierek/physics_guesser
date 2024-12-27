@@ -1,2 +1,4 @@
--Define function loss as in the paper
--Make reconstructed image visualisation
+-Generate 10 simulations for each force type and implement training on all the data. Generate one test simulation for
+ each force type
+-Implement saving of the network
+-Implement whole training
