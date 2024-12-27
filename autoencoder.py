@@ -67,13 +67,13 @@ class AutoencoderWithEvolution(nn.Module):
             nn.Unflatten(1, (256, input_size // 16 - 1, input_size // 16 - 1)),
             nn.ConvTranspose2d(256, 256, kernel_size=4, stride=1, padding=1),
             nn.ReLU(),
-            nn.ConvTranspose2d(256, 64, kernel_size=4, stride=2, padding=1, output_padding=1),
+            nn.ConvTranspose2d(256, 64, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
-            nn.ConvTranspose2d(64, 64, kernel_size=4, stride=2, padding=1, output_padding=1),
+            nn.ConvTranspose2d(64, 64, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1, output_padding=1),
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
-            nn.ConvTranspose2d(32, input_channels, kernel_size=4, stride=2, padding=1, output_padding=1),
+            nn.ConvTranspose2d(32, input_channels, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.Sigmoid()
         )
 
