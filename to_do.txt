@@ -1,1 +1,3 @@
--Jechać z pętlą
+-GPU support
+-Define function loss as in the paper
+-Make reconstructed image visualisation
