@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
 
-# Implementing GPU support (if aveilable)
+# Implementing GPU support (if aveilable) NEEDS TESTING ON GPU (MEASURE THE DIFFERENCE IN TIME?)
 device = device('cuda' if cuda.is_available() else 'cpu')
 print('Device:', str(device))
 
