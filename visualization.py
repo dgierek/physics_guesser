@@ -238,3 +238,24 @@ def visualise_batch(batch):
         ax.set_title(f'Image {i+1}')
 
     plt.show()
+
+
+def visualize_img_from_tensor(img_tensor):
+    """
+    The function plots the image in torch.tensor representation
+    :param torch.tensor img_tensor: assuming shape [1, 3, 64, 64]
+    :return: None
+    """
+
+    # Remove the batch dimension
+    tensor = img_tensor.squeeze(0)
+
+    # Convert to numpy array and transpose dimensions
+    np_image = tensor.permute(1, 2, 0).numpy()
+
+    # Display the image using matplotlib
+    plt.imshow(np_image)
+    plt.axis('off')  # Hide axes
+    plt.show()
+
+

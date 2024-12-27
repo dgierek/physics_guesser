@@ -115,12 +115,41 @@ import numpy as np
 #     visualize_trajectory_analytically(x_file, y_file, r'simulation_frames/no_force_test_0/info_dict.txt')
 
 
+'''Testing whether shapes of data and network's number of channels is correct:'''
+
+# from torchvision import transforms
+# from datasets import ImageDataset
+# from torch.utils.data import DataLoader
+# from autoencoder import AutoencoderWithEvolution
+
+# transform = transforms.Compose([
+#     transforms.Resize((64, 64)),  # down sampling the resolution of the images
+#     transforms.ToTensor()
+# ])
+# dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
+# dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
+#
+# first_batch = next(iter(dataloader))
+# first_picture = first_batch.squeeze(0)[0].unsqueeze(0)
+# second_picture = first_batch.squeeze(0)[1].unsqueeze(0)
+# print('first_picture.shape:', first_picture.shape)  # should print torch.Size([1, 3, 64, 64])
+# print('second_picture.shape:', second_picture.shape)  # should print torch.Size([1, 3, 64, 64])
+#
+# test_autoencoder = AutoencoderWithEvolution()
+# reconstructed_image_0, z_0, _ = test_autoencoder.forward(first_picture, None)
+# reconstructed_image_1, z_1, z_2_r = test_autoencoder.forward(second_picture, z_0)
+# print('reconstructed_image_0.shape:', reconstructed_image_0.shape)
+# print('z_0.shape:', z_0.shape)
+# print('z_1.shape:', z_1.shape)
+# print('z_2_r.shape:', z_2_r.shape)
+
+'''Testing the visualisation of single picture saved in tensor'''
+
 from torchvision import transforms
 from datasets import ImageDataset
 from torch.utils.data import DataLoader
-from autoencoder import AutoencoderWithEvolution
+from visualization import visualize_img_from_tensor
 
-'''Testing whether shapes of data and network's number of channels is correct:'''
 transform = transforms.Compose([
     transforms.Resize((64, 64)),  # down sampling the resolution of the images
     transforms.ToTensor()
@@ -130,15 +159,6 @@ dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
 first_batch = next(iter(dataloader))
 first_picture = first_batch.squeeze(0)[0].unsqueeze(0)
-second_picture = first_batch.squeeze(0)[1].unsqueeze(0)
-print('first_picture.shape:', first_picture.shape)  # should print torch.Size([1, 3, 64, 64])
-print('second_picture.shape:', second_picture.shape)  # should print torch.Size([1, 3, 64, 64])
 
-test_autoencoder = AutoencoderWithEvolution()
-reconstructed_image_0, z_0, _ = test_autoencoder.forward(first_picture, None)
-reconstructed_image_1, z_1, z_2_r = test_autoencoder.forward(second_picture, z_0)
-print('reconstructed_image_0.shape:', reconstructed_image_0.shape)
-print('z_0.shape:', z_0.shape)
-print('z_1.shape:', z_1.shape)
-print('z_2_r.shape:', z_2_r.shape)
+visualize_img_from_tensor(first_picture)
 
