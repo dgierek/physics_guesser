@@ -364,7 +364,7 @@ def generate_simulation_from_trajectory(x, y, box_size, save_path, img_name, sim
                                         info_dict=None):
     """
     The function creates images of a simulation of a rocket moving in the background according to the x, y arrays
-    containing rocket trajectory
+    containing rocket trajectory and saves them in a given directory
     :param np.ndarray x: array of x component of rocket trajectory
     :param np.ndarray y: array of y component of rocket trajectory
     :param int box_size: size of the box the rocket is moving in (rocket_simulation.generate_trajectories)
