@@ -163,7 +163,7 @@ def visualize_trajectory(x_coord_path, y_coord_path, info_dict_path, box_size=10
     plt.show()
 
 
-def visualize_trajectory_analytically(x_coord_path, y_coord_path, info_dict_path, box_size=10, save_energy_plot=False):
+def visualize_trajectory_analytically(x_coord_path, y_coord_path, info_dict_path, box_size=10, show_visualisation=True):
     """
     This function is loading x and y coordinates from .npy created by
     rocket_simulation.generate_simulation_from_trajectory function while saving the simulation and creating the plot of
@@ -173,6 +173,7 @@ def visualize_trajectory_analytically(x_coord_path, y_coord_path, info_dict_path
     :param str info_dict_path: path to the info_dict.txt for a given simulation
     :param int box_size: size of the box the rocket is moving in simulation (see rocket_simulation.generate_trajectories)
     :param bool save_energy_plot: if True save the trajectory and energy plot in the directory of simulation
+    :param bool show_visualisation: if True show the plot of trajectory and energy plot
     """
 
     # Checking whether the variables given are correct
@@ -209,7 +210,7 @@ def visualize_trajectory_analytically(x_coord_path, y_coord_path, info_dict_path
     ax1.set_aspect('equal')
 
     ax2.scatter(range(len(kinetic_energy)), kinetic_energy, s=0.5, c='blue', label='$E_k$')
-    if not isinstance(potential_energy, int):
+    if not isinstance(potential_energy, float):
         ax2.scatter(range(len(kinetic_energy)), potential_energy, s=0.5, c='red', label='$E_p$')
     ax2.scatter(range(len(kinetic_energy)), kinetic_energy + potential_energy, s=0.5, c='black', label='$E_t$')
     ax2.set_xlabel('Time step')
@@ -218,7 +219,8 @@ def visualize_trajectory_analytically(x_coord_path, y_coord_path, info_dict_path
 
     plt.tight_layout()
     plt.savefig(info_dict_path[:-len(r'\info_dict.txt')] + r'\trajectory_and_energy_plot.jpg')
-    plt.show()
+    if show_visualisation:
+        plt.show()
 
 
 def visualise_batch(batch):
