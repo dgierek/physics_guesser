@@ -8,7 +8,6 @@ from torchvision import transforms
 from evaluator import CombinedLoss
 from tqdm import tqdm
 
-# Implementing GPU support (if available) NEEDS TESTING ON GPU (MEASURE THE DIFFERENCE IN TIME?)
 device = device('cuda' if cuda.is_available() else 'cpu')
 print('Device:', str(device))
 
