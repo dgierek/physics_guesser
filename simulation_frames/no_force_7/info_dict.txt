@@ -1,0 +1,1 @@
+{"force_type": "no_force", "time_step": 0.01, "initial_position": "[[3.15914652 3.32105036]]", "initial_velocity": "[[-0.32809577 -0.79736693]]"}

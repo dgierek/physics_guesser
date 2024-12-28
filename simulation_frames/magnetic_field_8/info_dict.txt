@@ -1,0 +1,1 @@
+{"force_type": "magnetic_field", "time_step": 0.01, "initial_position": "[[3.02473954 5.68063979]]", "initial_velocity": "[[0.15024493 0.07226693]]", "B_field": "-0.2715341141711112"}

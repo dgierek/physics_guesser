@@ -1,0 +1,1 @@
+{"force_type": "harmonic_oscillator", "time_step": 0.01, "initial_position": "[[3.02500883 5.98120863]]", "initial_velocity": "[[-0.77842528 -0.73844203]]", "equilibrium_point": "[5.12084823 4.39534784]", "spring_constant": "[[0.06686462 0.011608  ]]"}

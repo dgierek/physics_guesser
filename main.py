@@ -145,20 +145,22 @@ import numpy as np
 
 '''Testing the visualisation of single picture saved in tensor'''
 
-from torchvision import transforms
-from datasets import ImageDataset
-from torch.utils.data import DataLoader
-from visualization import visualize_img_from_tensor
+# from torchvision import transforms
+# from datasets import ImageDataset
+# from torch.utils.data import DataLoader
+# from visualization import visualize_img_from_tensor
+#
+# transform = transforms.Compose([
+#     transforms.Resize((64, 64)),  # down sampling the resolution of the images
+#     transforms.ToTensor()
+# ])
+# dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
+# dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
+#
+# first_batch = next(iter(dataloader))
+# first_picture = first_batch.squeeze(0)[0].unsqueeze(0)
+#
+# visualize_img_from_tensor(first_picture)
 
-transform = transforms.Compose([
-    transforms.Resize((64, 64)),  # down sampling the resolution of the images
-    transforms.ToTensor()
-])
-dataset = ImageDataset(directory=r'simulation_frames/gravity_test_0/simulation_snapshots', transform=transform)
-dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
-first_batch = next(iter(dataloader))
-first_picture = first_batch.squeeze(0)[0].unsqueeze(0)
-
-visualize_img_from_tensor(first_picture)
 
