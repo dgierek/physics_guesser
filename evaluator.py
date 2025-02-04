@@ -56,7 +56,7 @@ class CombinedLoss(nn.Module):
         combined_loss = (reconstruction_loss + self.alpha * prediction_error_loss + self.beta * non_linearity_loss +
                          self.gamma * acceleration_loss)
 
-        return combined_loss
+        return reconstruction_loss, prediction_error_loss, non_linearity_loss, acceleration_loss, combined_loss
 
 
 'Example usage'
