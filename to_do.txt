@@ -1,5 +1,3 @@
--Change the dataloader so it can deal with final data (I don't know how Dataloader should deal with different types of
-movement)
 -Implement saving of the network
--Implement whole training
--Test GPU support (measure difference in time)
+-Implement casting 5D latent space vectors to 2D
+-Implement visualisation of generated trajectories and their comparison with original trajectories
