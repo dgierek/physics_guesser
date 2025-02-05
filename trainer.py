@@ -1,5 +1,4 @@
-import torch.nn as nn
-from torch import device, cuda
+from torch import device, cuda, save
 from torch.optim import Adam
 from autoencoder import AutoencoderWithEvolution
 from datasets import ImageDataset, collate_fn
@@ -84,14 +83,18 @@ for epoch in range(num_epochs):
     total_non_linearity_Loss.append(total_non_linearity_loss / len(dataloader))
     total_acceleration_Loss.append(total_acceleration_loss / len(dataloader))
 
+# Saving the model
+save(model.state_dict(), r'saved_models/trained_on_10_simulations.pth')
+
 # Visualizing the change of losses:
 plt.plot(range(num_epochs), total_Loss, label="total loss")
 plt.plot(range(num_epochs), total_reconstruction_Loss, label="reconstruction loss")
 plt.plot(range(num_epochs), total_prediction_error_Loss, label="prediction error loss")
-plt.plot(range(num_epochs), total_non_linearity_Loss, label="non linearity loss loss")
-plt.plot(range(num_epochs), total_acceleration_Loss, label="acceleration loss loss")
+plt.plot(range(num_epochs), total_non_linearity_Loss, label="non linearity loss")
+plt.plot(range(num_epochs), total_acceleration_Loss, label="acceleration loss")
 plt.xlabel('Epoch number')
 plt.ylabel('logarithmic Loss')
 plt.yscale('log')
 plt.legend()
+plt.savefig(r'saved_models\trained_on_10_simulations_loss.jpg')
 plt.show()
