@@ -1,6 +1,7 @@
 from rocket_simulation import generate_trajectories_analytically, generate_simulation_from_trajectory
 import matplotlib.pyplot as plt
 from visualization import visualize_trajectory_analytically
+from time import time
 
 def generate_data(force_type, main_folder_path, starting_idx, number_of_simulations, show_trajectory=False,
                   ask_for_save=False, make_gif=False):
@@ -75,8 +76,13 @@ def generate_data(force_type, main_folder_path, starting_idx, number_of_simulati
 
 
 'generating data for gravity simulation:'
-# generate_data('gravity', r'simulation_frames', 0, 10,
-#               True, True, True)
+number_of_simulations = 100
+time_0 = time()
+generate_data('gravity', r'simulation_frames', 45, number_of_simulations,
+              False, False, True)
+time_finish = time()
+
+print(f'Time it took for generating {number_of_simulations} simulations:', time_finish-time_0)
 
 'generating data for magnetic_field simulation:'
 # generate_data('magnetic_field', r'simulation_frames', 0, 10,

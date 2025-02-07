@@ -37,26 +37,26 @@ import numpy as np
 #                                       r'simulation_frames/magnetic_field_test_0/info_dict.txt')
 
 'Testing generation of simulation from generated_trajectory - gravity'
-# (x_g, y_g), info_dict = generate_trajectories_analytically('gravity', time_step=0.01, max_simul_steps=3000, box_size=10)
-# fig, ax = plt.subplots()
-# ax.scatter(x_g, y_g, s=0.5)
-#
-# ax.set_xlim(0, 10)
-# ax.set_ylim(0, 10)
-# ax.set_aspect('equal')
-# plt.show(block='True')
-#
-# animate_movement(x_g, y_g, 10, interval=10)
-#
-# save_animation = bool(int(input('Save animation (1/0)? ')))
-# if save_animation:
-#     save_path = r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames'
-#     generate_simulation_from_trajectory(x_g, y_g, 10, save_path, 'gravity_test',
-#                                         'gravity_test_0', make_gif=True, info_dict=info_dict)
-#
-# x_file = r'simulation_frames/gravity_test_0/gravity_test_x_coords.npy'
-# y_file = r'simulation_frames/gravity_test_0/gravity_test_y_coords.npy'
-# visualize_trajectory_analytically(x_file, y_file, r'simulation_frames/gravity_test_0/info_dict.txt')
+(x_g, y_g), info_dict = generate_trajectories_analytically('gravity', time_step=0.01, max_simul_steps=3000, box_size=10)
+fig, ax = plt.subplots()
+ax.scatter(x_g, y_g, s=0.5)
+
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 10)
+ax.set_aspect('equal')
+plt.show(block='True')
+
+animate_movement(x_g, y_g, 10, interval=10)
+
+save_animation = bool(int(input('Save animation (1/0)? ')))
+if save_animation:
+    save_path = r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames'
+    generate_simulation_from_trajectory(x_g, y_g, 10, save_path, 'gravity_test',
+                                        'gravity_test_0', make_gif=True, info_dict=info_dict)
+
+x_file = r'simulation_frames/gravity_test_0/gravity_test_x_coords.npy'
+y_file = r'simulation_frames/gravity_test_0/gravity_test_y_coords.npy'
+visualize_trajectory_analytically(x_file, y_file, r'simulation_frames/gravity_test_0/info_dict.txt')
 
 
 'Testing generation of simulation from generated_trajectory - harmonic_oscillator'

@@ -1,0 +1,1 @@
+{"force_type": "gravity", "time_step": 0.01, "initial_position": "[[4.3194572  3.36463828]]", "initial_velocity": "[[-0.04555687  0.70508331]]", "g_constant": "[[-0.30574149 -0.39562879]]"}

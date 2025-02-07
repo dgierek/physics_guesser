@@ -1,3 +1,1 @@
--Implement saving of the network
--Implement casting 5D latent space vectors to 2D
--Implement visualisation of generated trajectories and their comparison with original trajectories
+-Genreating more data (sth doesn't work in line 104 visualization.py)
