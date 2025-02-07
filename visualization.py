@@ -96,12 +96,12 @@ def total_energy_analytically(info_dict_path, x, y, body_mass=1):
         info_dict = json.load(json_file)
 
     force_type = info_dict['force_type']
-    time_step = info_dict['time_step']
+    time_step = float(info_dict['time_step'])
     v_0_x, v_0_y = np.fromstring(info_dict['initial_velocity'].strip("[]"), sep=" ")
     x_0, y_0 = np.fromstring(info_dict['initial_position'].strip("[]"), sep=" ")
 
     # Getting the array of time:
-    time = np.arange(stop=len(x)*time_step, step=time_step)
+    time = np.linspace(0, (len(x)-1)*time_step, num=len(x))
 
     if force_type == 'no_force' or force_type == 'magnetic_field':
         return np.full(shape=len(x), fill_value=body_mass / 2 * (v_0_x ** 2 + v_0_y ** 2)), 0
@@ -210,8 +210,8 @@ def visualize_trajectory_analytically(x_coord_path, y_coord_path, info_dict_path
     ax1.set_aspect('equal')
 
     ax2.scatter(range(len(kinetic_energy)), kinetic_energy, s=0.5, c='blue', label='$E_k$')
-    if not isinstance(potential_energy, float):
-        ax2.scatter(range(len(kinetic_energy)), potential_energy, s=0.5, c='red', label='$E_p$')
+    if isinstance(potential_energy, np.ndarray):
+        ax2.scatter(range(len(potential_energy)), potential_energy, s=0.5, c='red', label='$E_p$')
     ax2.scatter(range(len(kinetic_energy)), kinetic_energy + potential_energy, s=0.5, c='black', label='$E_t$')
     ax2.set_xlabel('Time step')
     ax2.set_ylabel('Energy')
