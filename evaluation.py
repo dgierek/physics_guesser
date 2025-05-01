@@ -12,7 +12,7 @@ device = device('cuda' if cuda.is_available() else 'cpu')
 print('Device:', str(device))
 
 model = AutoencoderWithEvolution().to(device)
-model.load_state_dict(load(r'saved_models/trained_on_10_simulations.pth'))
+model.load_state_dict(load(r'saved_models/trained_on_50_simul_lr0.01_recon_loss_only.pth'))
 model.eval()
 
 # Loading test data:
@@ -35,6 +35,23 @@ for _, data in dataloader:
     x_curr = x_curr.unsqueeze(0)
     latent_vector = model.encoder(x_curr)
     z.append(latent_vector.cpu().detach().numpy())
+    # Visualising original image and image obtained from the autoencoder:
+    # Remove the batch dimension
+    original_image = x_curr.squeeze(0)
+    net_image = model.decoder(latent_vector).detach().squeeze(0)
+    # Convert to numpy array and transpose dimensions
+    original_image = original_image.permute(1, 2, 0).numpy()
+    net_image = net_image.permute(1, 2, 0).numpy()
+    print(original_image.shape)
+    print(net_image.shape)
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    # Display the image using matplotlib
+    ax1.imshow(original_image)
+    ax1.axis('off')  # Hide axes
+    ax2.imshow(net_image)
+    ax2.axis('off')  # Hide axes
+    plt.tight_layout()
+    plt.show()
 
 z = np.concatenate(z, axis=0)
 #print(z.shape)
@@ -56,9 +73,9 @@ ax1.set_aspect('equal')
 
 ax2.plot(z_reduced[:,0], z_reduced[:,1], linewidth=0.5)
 
-ax2.set_xlim(-5, 5)
-ax2.set_ylim(-5, 5)
-ax2.set_aspect('equal')
+ax2.set_xlim(-30, 30)
+ax2.set_ylim(-30, 30)
+#ax2.set_aspect('equal')
 
 plt.tight_layout()
 plt.show()

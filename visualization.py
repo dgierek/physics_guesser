@@ -261,3 +261,26 @@ def visualize_img_from_tensor(img_tensor):
     plt.show()
 
 
+def visualize_trajectory_without_energy(x_coord_path, y_coord_path, box_size=10):
+    # loading x and y coordinates:
+    x = np.load(x_coord_path)
+    y = np.load(y_coord_path)
+
+    fig, ax = plt.subplots(1, 1)
+    ax.set_xlim(0, box_size)
+    ax.set_ylim(0, box_size)
+    ax.set_aspect('equal')
+
+    ax.plot(x, y)
+    # ax.scatter(5.71, 4.58, label='Equilibrium point', c='red')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    # plt.legend()
+
+    plt.show(block='true')
+
+visualize_trajectory_without_energy(r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames\no_force_0\no_force_x_coords.npy',
+                                    r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames\no_force_0\no_force_y_coords.npy')
+
+
+

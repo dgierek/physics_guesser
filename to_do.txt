@@ -1,1 +1,2 @@
--Genreating more data (sth doesn't work in line 104 visualization.py)
+-Zaimplementować nowy dataset w treningu
+-try mse zamiast tych wymyślnych lossów

@@ -4,17 +4,11 @@ import torch.autograd as autograd
 
 
 class CombinedLoss(nn.Module):
-    def __init__(self, alpha=1.0, beta=1.0, gamma=1.0):
+    def __init__(self):
         """
         Creates loss function as defined in the article: https://arxiv.org/pdf/2005.11212
-        :param alpha: weight for prediction error loss
-        :param beta: weight for nonlinear error loss
-        :param gamma: weight for acceleration error loss
         """
         super(CombinedLoss, self).__init__()
-        self.alpha = alpha  # weight for prediction error loss
-        self.beta = beta    # weight for nonlinear error loss
-        self.gamma = gamma  # weight for acceleration error loss
 
     def compute_jacobian(self, output, input):
         jacobian = []
@@ -36,38 +30,33 @@ class CombinedLoss(nn.Module):
         z_next_true.requires_grad_(True)
 
         # Reconstruction Loss
-        reconstruction_loss = torch.mean(torch.abs(reconstructed - x_curr) / (torch.abs(x_curr) + 1e-8))
+        # reconstruction_loss = (torch.linalg.vector_norm(reconstructed - x_curr) /
+        #                        (torch.linalg.vector_norm(x_curr) + 1.e-8))
+        reconstruction_loss = torch.linalg.vector_norm(reconstructed - x_curr)
 
         # Prediction Error Loss
-        prediction_error_loss = torch.mean(torch.abs(z_next_true - z_next_pred) / (torch.abs(z_curr - z_prev) + 1e-8))
+        prediction_error_loss = (torch.linalg.vector_norm(z_next_true - z_next_pred) /
+                                 (torch.linalg.vector_norm(z_curr - z_prev) + 1e-8))
 
         # Non-Linearity Loss
         w_curr = torch.cat((z_prev, z_curr), dim=1)
         w_next = torch.cat((z_curr, z_next_pred), dim=1)
         jacobian_w_curr = self.compute_jacobian(w_curr, x_curr)
         jacobian_w_next = self.compute_jacobian(w_next, x_next)
-        non_linearity_loss = 1 / (2 * latent_dim**2) * torch.norm(jacobian_w_next - jacobian_w_curr, p=2).pow(2)
+        '''
+        Previous version:
+        non_linearity_loss = 1 / (2 * latent_dim**2) * torch.norm(jacobian_w_next -
+                                                                  jacobian_w_curr, p=2).pow(2)
+        '''
+        non_linearity_loss = jacobian_w_next - jacobian_w_curr
+
         # Acceleration Loss
         I = torch.eye(latent_dim)
         M = torch.cat((-I, 2*I), dim=1)
+        '''
+        Previous version:
         acceleration_loss = 1 / latent_dim * torch.norm(z_next_pred - M @ w_curr.T, p=1)
+        '''
+        acceleration_loss = z_next_pred - M @ w_curr.T
 
-        # Combined Loss
-        combined_loss = (reconstruction_loss + self.alpha * prediction_error_loss + self.beta * non_linearity_loss +
-                         self.gamma * acceleration_loss)
-
-        return reconstruction_loss, prediction_error_loss, non_linearity_loss, acceleration_loss, combined_loss
-
-
-'Example usage'
-# combined_loss = CombinedLoss(alpha=1.0, beta=1.0, gamma=1.0)
-# reconstructed = torch.randn(1, 3, 64, 64, requires_grad=True)
-# x_curr = torch.randn(1, 3, 64, 64, requires_grad=True)
-# x_next = torch.randn(1, 3, 64, 64, requires_grad=True)
-# z_prev = torch.randn(1, 10, requires_grad=True)
-# z_curr = torch.randn(1, 10, requires_grad=True)
-# z_next_pred = torch.randn(1, 10, requires_grad=True)
-# z_next_true = torch.randn(1, 10, requires_grad=True)
-#
-# loss = combined_loss(reconstructed, x_curr, x_next, z_prev, z_curr, z_next_pred, z_next_true, 10)
-# print('Loss:', loss.item())
+        return reconstruction_loss, prediction_error_loss, non_linearity_loss, acceleration_loss
