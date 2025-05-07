@@ -1,2 +1,4 @@
--Zaimplementować nowy dataset w treningu
--try mse zamiast tych wymyślnych lossów
+-Wyrysować trajektorię (ogarnąć preprocessed data dla jednej symulacji)
+-Poprawić raport
+
+-Dalsza jazda do nowego raportu (napisz maila do tego chłopa jak to ma wyglądać)

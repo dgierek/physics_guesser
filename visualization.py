@@ -279,8 +279,27 @@ def visualize_trajectory_without_energy(x_coord_path, y_coord_path, box_size=10)
 
     plt.show(block='true')
 
-visualize_trajectory_without_energy(r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames\no_force_0\no_force_x_coords.npy',
-                                    r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames\no_force_0\no_force_y_coords.npy')
+def plot_train_history(history):
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 
+    axes[0].plot(history["loss"], label="Train Loss")
+    axes[0].plot(history["val_loss"], label="Validation Loss")
+    axes[0].set_xlabel("Epoch")
+    axes[0].set_ylabel("Loss")
+    axes[0].legend()
+
+    axes[1].plot(history["loss"], label="Train Loss")
+    axes[1].plot(history["val_loss"], label="Validation Loss")
+    axes[1].set_xlabel("Epoch")
+    axes[1].set_ylabel("Log(Loss)")
+    axes[1].set_yscale("log")
+    axes[1].legend()
+
+    plt.tight_layout()
+    plt.show()
+
+# visualize_trajectory_without_energy(r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames\no_force_0\no_force_x_coords.npy',
+#                                     r'C:\Users\Public\Desktop\Python projects\physics_guesser\simulation_frames\no_force_0\no_force_y_coords.npy')
+#
 
 

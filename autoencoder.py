@@ -80,6 +80,9 @@ class AutoencoderWithEvolution(nn.Module):
         # Evolution Operator
         self.evolution_operator = EvolutionOperator(latent_dim)
 
+        # Apply weight initialization
+        #self._initialize_weights()
+
     def forward(self, x, z_prev=None):
         """
         Forward pass through the autoencoder and evolution operator.
@@ -96,4 +99,15 @@ class AutoencoderWithEvolution(nn.Module):
             z_next = None
         reconstructed = self.decoder(z_i)  # Decode latent vector
         return reconstructed, z_i, z_next
+
+    def _initialize_weights(self):
+        """ Applies proper weight initialization to layers. """
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight)  # Helps stabilize learning for fully connected layers
+                nn.init.zeros_(m.bias)  # Ensures stable bias
+            elif isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  # Good for Conv layers
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)  # Stabilizes bias initialization
 

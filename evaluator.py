@@ -60,3 +60,12 @@ class CombinedLoss(nn.Module):
         acceleration_loss = z_next_pred - M @ w_curr.T
 
         return reconstruction_loss, prediction_error_loss, non_linearity_loss, acceleration_loss
+
+
+class ReconstructionError(nn.Module):
+    """Computes normalized reconstruction error."""
+    def __init__(self):
+        super(ReconstructionError, self).__init__()
+
+    def forward(self, x_i, reconstructed):
+        return torch.mean(torch.linalg.vector_norm(x_i - reconstructed) / (torch.linalg.vector_norm(x_i) + 1e-4))  # Avoid division by zero

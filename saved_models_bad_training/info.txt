@@ -1,3 +1,5 @@
 These models were trained with the wrong training loop.
 Optimizer.step() was called after every 3 pictures of a simulation and should be called
 after every epoch (full simulation) instead.
+
+Also the way the data is batched changed.
