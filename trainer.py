@@ -2,7 +2,6 @@
 import torch
 from tqdm import tqdm
 
-
 # Self written library imports:
 import datasets
 import autoencoder
@@ -15,13 +14,14 @@ def train_autoencoder(model, train_loader, val_loader, epochs=10, initial_lr=0.0
 
     # Move model to GPU if available:
     model.to(device)
+
     # Define optimizer:
     optimizer = torch.optim.Adam(model.parameters(), lr=initial_lr)
 
     # Define learning rate scheduler:
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=lr_decay_step, gamma=lr_decay_factor)
 
-    # Store loss values
+    # Store loss values:
     history = {"loss": [], "val_loss": []}
 
     # Instantiate the loss function:
@@ -30,6 +30,7 @@ def train_autoencoder(model, train_loader, val_loader, epochs=10, initial_lr=0.0
     for epoch in range(epochs):
         total_loss = 0.0
         val_loss = 0.0
+        # Code for showing progress bar of each training epoch:
         progress_bar = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{epochs}")
 
         for batch in progress_bar:
@@ -43,12 +44,13 @@ def train_autoencoder(model, train_loader, val_loader, epochs=10, initial_lr=0.0
             # Calculating loss:
             loss = recon_loss_fn(x_i, reconstructed)
 
+            # Loss backward propagation:
             loss.backward()
             optimizer.step()
 
             total_loss += loss.item()
 
-            # Update tqdm progress bar with loss
+            # Update tqdm progress bar with loss:
             progress_bar.set_postfix(loss=f"{total_loss:.4f}")
 
         history["loss"].append(total_loss / len(train_loader))
@@ -56,8 +58,8 @@ def train_autoencoder(model, train_loader, val_loader, epochs=10, initial_lr=0.0
         # Step the scheduler after every epoch
         scheduler.step()
 
-        # Validation loop
-        model.eval()  # Set model to evaluation mode
+        # Validation loop:
+        model.eval()  # Set model to evaluation mode (no change of weights)
         with torch.no_grad():
             for batch in val_loader:
                 batch = batch.to(device)
