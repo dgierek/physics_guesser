@@ -1,9 +1,7 @@
 import matplotlib.pyplot as plt
 from rocket_simulation import generate_trajectories_analytically, generate_simulation_from_trajectory
-from animation import animate_movement, test_circle
+from animation import animate_movement
 from visualization import visualize_trajectory_analytically
-import numpy as np
-
 
 'Testing the creation of animation frames from coordinates'
 # x, y = test_circle(5, 5, 3, 30)

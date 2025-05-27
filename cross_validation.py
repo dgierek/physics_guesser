@@ -1,15 +1,12 @@
-from torch import device, cuda, save
+from torch import device
 from torch.optim import Adam
 from autoencoder import AutoencoderWithEvolution
 from datasets import ImageDataset, collate_fn
 from torch.utils.data import DataLoader
-from torchvision import transforms
 from evaluator import CombinedLoss
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 from torch.optim.lr_scheduler import StepLR
 from sklearn.model_selection import ParameterGrid, KFold
-import numpy as np
 
 '''IDEA CODE - NEEDS DEBUGGING!'''
 

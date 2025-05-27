@@ -63,9 +63,64 @@ class CombinedLoss(nn.Module):
 
 
 class ReconstructionError(nn.Module):
-    """Computes normalized reconstruction error."""
+    """Computes normalized reconstruction error"""
     def __init__(self):
         super(ReconstructionError, self).__init__()
 
     def forward(self, x_i, reconstructed):
         return torch.mean(torch.linalg.vector_norm(x_i - reconstructed) / (torch.linalg.vector_norm(x_i) + 1e-4))  # Avoid division by zero
+
+
+class PredictionError(nn.Module):
+    """Computes the prediction error"""
+    def __init__(self):
+        super(PredictionError, self).__init__()
+
+    def forward(self, z_next, z_next_pred, z_i, z_prev):
+        torch.mean(torch.linalg.vector_norm(z_next - z_next_pred) /
+                   (torch.linalg.vector_norm(z_i - z_prev) + 1e-4))
+
+
+class NonlinearityError(nn.Module):
+    def __init__(self, evolution_operator, latent_dim):
+        """Initializes the loss computation with an evolution operator."""
+        super(NonlinearityError, self).__init__()
+        self.evolution_operator = evolution_operator  # Pass EvolutionOperator model
+        self.scale_factor = 1 / (4 * latent_dim**3)  # Scaling constant
+
+    def compute_jacobian_norm(self, z_prev, z_i):
+        """Computes the Jacobian matrix and its L1 norm."""
+        inputs = (z_i.requires_grad_(), z_prev.requires_grad_())
+
+        # Compute Jacobian using PyTorch autograd
+        J_matrix = torch.autograd.functional.jacobian(lambda x: self.evolution_operator(x[0], x[1]), inputs)
+
+        # Compute L1 norm of Jacobian
+        jacobian_norm = torch.norm(J_matrix[0], p=1)  # L1 norm
+        return jacobian_norm
+
+    def forward(self, z_i, z_prev):
+        """Computes nonlinearity loss based on input latent variables."""
+        diff = torch.abs(z_i - z_prev)  # |z_i - z_{i-1}|
+        jacobian_norm = self.compute_jacobian_norm(z_prev, z_i)
+
+        # Nonlinearity error calculation
+        loss_value = self.scale_factor * diff * jacobian_norm
+        return torch.mean(loss_value)  # Aggregate loss
+
+
+class AccelerationError(nn.Module):
+    """Computes the acceleration error"""
+    def __init__(self, evolution_operator, latent_dim):
+        super(AccelerationError, self).__init__()
+        self.evolution_operator = evolution_operator
+        self.latent_dim = latent_dim
+
+    def forward(self, z_i, z_prev):
+        w = torch.cat((z_i, z_prev), dim=1) # MAYBE IT SHOULD BE Z_PREV, Z_I
+        u_of_w = self.evolution_operator(z_i, z_prev)
+        I = torch.eye(self.latent_dim)
+        M = torch.cat((-I, 2 * I), dim=1)
+
+        accel_loss = (1 / self.latent_dim) * torch.norm(u_of_w - M @ w, p=1)
+        return torch.mean(accel_loss)

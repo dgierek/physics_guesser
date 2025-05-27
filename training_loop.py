@@ -51,7 +51,7 @@ def fit_model_gravity(learning_rate=1.e-3, alpha=1.e-3, beta=1.e-3, gamma=0., la
 
     for epoch in range(num_epochs):
       # Getting data out of one of the gravity simulations:
-      dataset = datasets.ImageDataset(directory=rf'simulation_frames/gravity_{epoch%145}/simulation_snapshots',
+      dataset = datasets.ImageDataset(directory=rf'simulation_frames/gravity_{epoch % 145}/simulation_snapshots',
                                       transform=transform)
       dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, collate_fn=datasets.collate_fn)
 
